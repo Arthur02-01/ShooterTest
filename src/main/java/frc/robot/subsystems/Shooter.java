@@ -39,10 +39,7 @@ public class Shooter extends SubsystemBase {
     /* ========= HARDWARE ========= */
 
     private final SparkMax shooterArlindo;
-    private final SparkMax shooterBoquinha;
-
     private final RelativeEncoder arlindoEncoder;
-    private final RelativeEncoder boquinhaEncoder;
 
     /* ========= ESTADO ========= */
 
@@ -55,18 +52,22 @@ public class Shooter extends SubsystemBase {
 
     public Shooter() {
 
-        shooterArlindo = new SparkMax(Constants.Shooter.ShooterArlindo, MotorType.kBrushless);
-        shooterBoquinha = new SparkMax(Constants.Shooter.ShooterBoquinha, MotorType.kBrushless);
+        shooterArlindo = new SparkMax(
+                Constants.Shooter.ShooterArlindo,
+                MotorType.kBrushless
+        );
 
         arlindoEncoder = shooterArlindo.getEncoder();
-        boquinhaEncoder = shooterBoquinha.getEncoder();
 
         SparkMaxConfig config = new SparkMaxConfig();
         config.idleMode(IdleMode.kBrake);
         config.smartCurrentLimit(60);
 
-        shooterArlindo.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-        shooterBoquinha.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+        shooterArlindo.configure(
+                config,
+                ResetMode.kNoResetSafeParameters,
+                PersistMode.kNoPersistParameters
+        );
     }
 
     /* ========= CONTROLE ========= */
@@ -101,7 +102,6 @@ public class Shooter extends SubsystemBase {
         };
 
         shooterArlindo.set(sinal * velocidadeAtual.valor);
-        shooterBoquinha.set(sinal * velocidadeAtual.valor);
     }
 
     /* ========= STATUS ========= */
@@ -110,8 +110,12 @@ public class Shooter extends SubsystemBase {
         return Math.abs(arlindoEncoder.getVelocity()) > RPM_MIN_GIRANDO;
     }
 
-    public boolean boquinhaEstaGirando() {
-        return Math.abs(boquinhaEncoder.getVelocity()) > RPM_MIN_GIRANDO;
+    public DirecaoShooter getDirecaoAtual() {
+        return direcaoAtual;
+    }
+
+    public VelocidadeShooter getVelocidadeAtual() {
+        return velocidadeAtual;
     }
 
     /* ========= DASHBOARD ========= */
@@ -121,12 +125,19 @@ public class Shooter extends SubsystemBase {
         SmartDashboard.putString("Shooter/Direcao", direcaoAtual.name());
         SmartDashboard.putString("Shooter/Velocidade", velocidadeAtual.name());
 
-        SmartDashboard.putBoolean("Shooter/Ativo", direcaoAtual != DirecaoShooter.PARADO);
-        SmartDashboard.putNumber("Shooter/Arlindo RPM", arlindoEncoder.getVelocity());
-        SmartDashboard.putNumber("Shooter/Boquinha RPM", boquinhaEncoder.getVelocity());
-        SmartDashboard.putString("Shooter/Direcao", direcaoAtual.name());
-        SmartDashboard.putString("Shooter/Velocidade", velocidadeAtual.name());
-        SmartDashboard.putBoolean("Shooter/Ativo", direcaoAtual != DirecaoShooter.PARADO);
-        
+        SmartDashboard.putBoolean(
+                "Shooter/Ativo",
+                direcaoAtual != DirecaoShooter.PARADO
+        );
+
+        SmartDashboard.putNumber(
+                "Shooter/Arlindo RPM",
+                arlindoEncoder.getVelocity()
+        );
+
+        SmartDashboard.putBoolean(
+                "Shooter/Arlindo Girando",
+                arlindoEstaGirando()
+        );
     }
 }
